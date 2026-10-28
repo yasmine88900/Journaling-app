@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Welcome to your Expo app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
@@ -54,3 +55,26 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+=======
+# Journaling-app
+
+## Role
+Journaling Developer
+
+## Responsibilities
+- Journal editor
+- Daily writing prompts
+- Journal history
+- Journal customization
+- Optional photo and media attachments
+- Journal-related UI and interactions
+
+## Technologies
+- React Native
+- Expo
+- TypeScript
+  
+
+## Status
+Project setup and requirements gathering.
+>>>>>>> d084ff497fc75c7b3eccd10e63d2f8f83b6fb1f2
