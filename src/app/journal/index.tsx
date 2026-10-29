@@ -1,9 +1,10 @@
 import {
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 
 import prompts from "@/data/prompts";
@@ -11,6 +12,10 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 export default function JournalScreen(){
     const [entry, setEntry] = useState("");
+     const [entries, setEntries] =  useState<string[]>([]);
+     const [isSaving, setIsSaving] = useState(false);
+     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const router = useRouter();
     
     const today = new Date();
@@ -36,11 +41,33 @@ else{
            <Text >{dailyPrompt}
            </Text>
            <TextInput style={styles.input}
-           placeholder="write you thoughts here.."  multiline value={entry} onChangeText={setEntry}></TextInput>
-           <TouchableOpacity style={styles.saveButton} onPress={()=>alert(entry)}>
-           <Text style={styles.saveText}> Save Entry</Text>
+           placeholder="write you thoughts here.."  multiline value={entry} onChangeText={(text)=>{setEntry(text) ;
+            setHasUnsavedChanges(true)}
+           }></TextInput>
+           <TouchableOpacity style={styles.saveButton} disabled={isSaving} onPress={()=>{if(entry.trim()===""){
+            alert("Enter a valid message")
+           }
+           else{
+            setIsSaving(true);
+            setHasUnsavedChanges(false);
+            setEntries([...entries, entry]);
+            setTimeout(()=>{
+              setIsSaving(false);
+              alert("Entry Saved successfully")
+            },1000)
+           } }}>
+           <TouchableOpacity>{entries.map((item,index)=>
+            <Text key={index}>{item}</Text>)}
+            </TouchableOpacity> 
+
+           <Text style={styles.saveText}>{isSaving ? `Saving..`:`Save Entry`}</Text>
             </TouchableOpacity>
-            <TouchableOpacity  style={styles.backButton}onPress={()=>router.back()}>
+            <TouchableOpacity  style={styles.backButton}onPress={()=>{
+              if(hasUnsavedChanges){
+               Alert.alert(  "Unsaved changes",
+                              "Do you want to leave without saving?",)//add choices to save or cancel later
+
+              }else{router.back()}}}>
              <Text style={styles.backText}> Back to Dashboard</Text>
             </TouchableOpacity>
         </View>
