@@ -1,0 +1,1 @@
+//Screen for writing an entry

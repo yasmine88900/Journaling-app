@@ -1,0 +1,1 @@
+//Displays a selected entry using its ID

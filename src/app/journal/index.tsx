@@ -1,3 +1,8 @@
+
+import { JournalEntry } from "@/types/journal";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   Alert,
   StyleSheet,
@@ -6,13 +11,9 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-
-import prompts from "@/data/prompts";
-import { useRouter } from "expo-router";
-import { useState } from "react";
 export default function JournalScreen(){
     const [entry, setEntry] = useState("");
-     const [entries, setEntries] =  useState<string[]>([]);
+     const [entries, setEntries] =  useState<JournalEntry[]>([]);
      const [isSaving, setIsSaving] = useState(false);
      const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
      const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -32,6 +33,22 @@ else{
     const [dailyPrompt, setDailyPrompt] = useState(
   prompts[promptIndex] || "No writing prompt available today. Write about anything on your mind."
 );
+ useEffect(()=>{
+  async function loadEntries() {
+    try{
+   const savedEntries= await AsyncStorage.getItem("journalEntries")
+  setEntries(savedEntries ? JSON.parse(savedEntries) : [])}
+  catch(error){
+    Alert.alert(String(error))
+  }
+  finally{
+      console.log("Loading finished");
+  }
+
+  }
+  loadEntries();
+
+ },[])
     return(
         <View style={styles.container}>
        
@@ -44,24 +61,38 @@ else{
            placeholder="write you thoughts here.."  multiline value={entry} onChangeText={(text)=>{setEntry(text) ;
             setHasUnsavedChanges(true)}
            }></TextInput>
-           <TouchableOpacity style={styles.saveButton} disabled={isSaving} onPress={()=>{if(entry.trim()===""){
+
+           <TouchableOpacity style={styles.saveButton} disabled={isSaving} onPress={async()=>{if(entry.trim()===""){
             alert("Enter a valid message")
            }
            else{
             setIsSaving(true);
+            let updatedEntries
+              if(editingIndex!==null){
+             updatedEntries=entries.map((item,index)=>index===editingIndex?entry:item)
+             
+  } 
+  else{ updatedEntries=[...entries,entry]}
+             setEntries(updatedEntries);
+            await AsyncStorage.setItem("journalEntries", JSON.stringify(updatedEntries));
             setHasUnsavedChanges(false);
-            setEntries([...entries, entry]);
+           
             setTimeout(()=>{
               setIsSaving(false);
+              setEntry("");
+              setEditingIndex(null)
+              setHasUnsavedChanges(false)
               alert("Entry Saved successfully")
             },1000)
            } }}>
-           <TouchableOpacity>{entries.map((item,index)=>
-            <Text key={index}>{item}</Text>)}
-            </TouchableOpacity> 
+         
+          
+            
 
            <Text style={styles.saveText}>{isSaving ? `Saving..`:`Save Entry`}</Text>
             </TouchableOpacity>
+            {entries.map((item,index)=>
+            <Text key={index}> <TouchableOpacity onPress={() => {setEntry(item);setEditingIndex(index)}}> <Text>{item}</Text></TouchableOpacity></Text>)}
             <TouchableOpacity  style={styles.backButton}onPress={()=>{
               if(hasUnsavedChanges){
                Alert.alert(  "Unsaved changes",
