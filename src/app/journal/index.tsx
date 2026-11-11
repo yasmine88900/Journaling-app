@@ -11,9 +11,16 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+
+import { JournalEmojis, JournalFonts, JournalThemes } from "@/constants/journalCustomization";
 export default function JournalScreen(){
     const [entry, setEntry] = useState("");
+
+    const [selectedTheme, setSelectedTheme] = useState("");
+    const [selectedFont, setSelectedFont] = useState("normal");
+    const [selectedEmoji, setSelectedEmoji] = useState("");
      const [entries, setEntries] =  useState<JournalEntry[]>([]);
+
      const [isSaving, setIsSaving] = useState(false);
      const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
      const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -38,15 +45,21 @@ else{
  useEffect(()=>{
   async function getEntries() {
     try{
-   const savedEntries = await loadEntries();
+   const savedEntries =
+    await loadEntries();
       setEntries(savedEntries);
       const selectedEntry = savedEntries.find(
      (item) => item.id === entryId
 );
-const selectedIndex=savedEntries.findIndex((item)=>item.id===entryId);
+const selectedIndex=
+savedEntries.findIndex((item)=>item.id===entryId);
 if (selectedEntry && selectedIndex !== -1) {
   setEntry(selectedEntry.content);
   setEditingIndex(selectedIndex);
+  setSelectedEmoji(selectedEntry.emoji ?? "");
+  setSelectedFont(selectedEntry.font ?? "");
+  setSelectedTheme(selectedEntry.theme ?? "");
+  
 }
 }
   catch(error){
@@ -69,12 +82,51 @@ if (selectedEntry && selectedIndex !== -1) {
               </TouchableOpacity>
            <Text style={styles.date}>{new Date().toDateString()}</Text>
            <Text style={styles.greeting}>Hello!</Text>
-           <Text >{dailyPrompt}
-           </Text>
-           <TextInput style={styles.input}
+           <Text >{dailyPrompt}</Text>
+
+          <View style={{ flexDirection: "row", gap: 10 }}>
+            {JournalEmojis.map((emoji)=>(
+              <TouchableOpacity key={emoji}
+              onPress={()=>setSelectedEmoji(emoji)}>
+                 <Text>{emoji}</Text>
+                 
+              </TouchableOpacity>
+            ))}
+          </View>
+          <View style={{ flexDirection: "row", gap: 10 }}>
+            {Object.entries(JournalThemes).map(([theme,color])=>(<TouchableOpacity
+            
+             key={theme}
+            onPress={() => setSelectedTheme(theme)}
+           style={{
+        backgroundColor: color,
+        width: 35,
+        height: 35,
+        borderRadius: 20,
+      }}>
+              
+            </TouchableOpacity>))}
+          </View>
+          {selectedEmoji !=="" &&(<Text>
+            {selectedEmoji}
+          </Text>)}
+           
+           <TextInput style={[styles.input, { fontFamily: selectedFont ,backgroundColor: JournalThemes[selectedTheme as keyof typeof JournalThemes]}]}
+           
            placeholder="write you thoughts here.."  multiline value={entry} onChangeText={(text)=>{setEntry(text) ;
             setHasUnsavedChanges(true)}
            }></TextInput>
+           <View style={{ flexDirection: "row", gap: 10 }}>
+             {JournalFonts.map((font) => (
+               <TouchableOpacity
+                 key={font}
+                onPress={() => setSelectedFont(font)}
+    >
+                  <Text>{font}</Text>
+                  </TouchableOpacity>
+  ))}
+</View>
+           
 
            <TouchableOpacity style={styles.saveButton} disabled={isSaving} onPress={async()=> {
   if (isSaving) return;
@@ -90,6 +142,9 @@ if (selectedEntry && selectedIndex !== -1) {
               ...item,
         content: entry,
         updatedAt: new Date().toISOString(),
+        emoji: selectedEmoji,
+        font:selectedFont,
+        theme:selectedTheme,
              }:item)
              
   } 
@@ -101,6 +156,9 @@ if (selectedEntry && selectedIndex !== -1) {
           prompt: dailyPrompt,
          createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        emoji: selectedEmoji,
+        font:selectedFont,
+        theme:selectedTheme,
      };
      updatedEntries=[...entries,newEntry]}
             
@@ -122,9 +180,6 @@ if (selectedEntry && selectedIndex !== -1) {
            
            } }}}>
          
-          
-            
-
            <Text style={styles.saveText}>{isSaving ? `Saving..`:`Save Entry`}</Text>
             </TouchableOpacity>
 
