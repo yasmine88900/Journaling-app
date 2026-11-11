@@ -1,7 +1,7 @@
-
+import prompts from "@/data/prompts";
+import { loadEntries, saveEntries } from "@/services/journalServices";
 import { JournalEntry } from "@/types/journal";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -18,6 +18,8 @@ export default function JournalScreen(){
      const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
      const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const router = useRouter();
+    const { entryId } = useLocalSearchParams<{ entryId?: string }>();
+   
     
     const today = new Date();
     const startOfYear = new Date(today.getFullYear(), 0, 0);
@@ -34,10 +36,19 @@ else{
   prompts[promptIndex] || "No writing prompt available today. Write about anything on your mind."
 );
  useEffect(()=>{
-  async function loadEntries() {
+  async function getEntries() {
     try{
-   const savedEntries= await AsyncStorage.getItem("journalEntries")
-  setEntries(savedEntries ? JSON.parse(savedEntries) : [])}
+   const savedEntries = await loadEntries();
+      setEntries(savedEntries);
+      const selectedEntry = savedEntries.find(
+     (item) => item.id === entryId
+);
+const selectedIndex=savedEntries.findIndex((item)=>item.id===entryId);
+if (selectedEntry && selectedIndex !== -1) {
+  setEntry(selectedEntry.content);
+  setEditingIndex(selectedIndex);
+}
+}
   catch(error){
     Alert.alert(String(error))
   }
@@ -46,13 +57,16 @@ else{
   }
 
   }
-  loadEntries();
+  getEntries();
 
- },[])
+ },[entryId])
     return(
         <View style={styles.container}>
        
             <Text style={styles.title}>My Journal 🌿</Text>
+            <TouchableOpacity style={styles.historyButton} onPress={() => router.push("/journal/history")}>
+               <Text style={styles.historyText}>View Journal History</Text>
+              </TouchableOpacity>
            <Text style={styles.date}>{new Date().toDateString()}</Text>
            <Text style={styles.greeting}>Hello!</Text>
            <Text >{dailyPrompt}
@@ -62,37 +76,59 @@ else{
             setHasUnsavedChanges(true)}
            }></TextInput>
 
-           <TouchableOpacity style={styles.saveButton} disabled={isSaving} onPress={async()=>{if(entry.trim()===""){
+           <TouchableOpacity style={styles.saveButton} disabled={isSaving} onPress={async()=> {
+  if (isSaving) return;
+   
+    {if(entry.trim()===""){
             alert("Enter a valid message")
            }
            else{
             setIsSaving(true);
-            let updatedEntries
+            let updatedEntries:JournalEntry[]
               if(editingIndex!==null){
-             updatedEntries=entries.map((item,index)=>index===editingIndex?entry:item)
+             updatedEntries=entries.map((item,index)=>index===editingIndex?{
+              ...item,
+        content: entry,
+        updatedAt: new Date().toISOString(),
+             }:item)
              
   } 
-  else{ updatedEntries=[...entries,entry]}
-             setEntries(updatedEntries);
-            await AsyncStorage.setItem("journalEntries", JSON.stringify(updatedEntries));
+  else{ 
+    
+     const newEntry: JournalEntry = {
+          id: Date.now().toString(),
+          content: entry,
+          prompt: dailyPrompt,
+         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+     };
+     updatedEntries=[...entries,newEntry]}
+            
+  
+            try{
+              await saveEntries(updatedEntries);
+               setEntries(updatedEntries);
+              setHasUnsavedChanges(false);
+
+            }
+            catch (error) {
+          Alert.alert("Error", "Could not save your entry. Please try again.");
+                }         
+                 finally {
+  setIsSaving(false);
+           }
             setHasUnsavedChanges(false);
            
-            setTimeout(()=>{
-              setIsSaving(false);
-              setEntry("");
-              setEditingIndex(null)
-              setHasUnsavedChanges(false)
-              alert("Entry Saved successfully")
-            },1000)
-           } }}>
+           
+           } }}}>
          
           
             
 
            <Text style={styles.saveText}>{isSaving ? `Saving..`:`Save Entry`}</Text>
             </TouchableOpacity>
-            {entries.map((item,index)=>
-            <Text key={index}> <TouchableOpacity onPress={() => {setEntry(item);setEditingIndex(index)}}> <Text>{item}</Text></TouchableOpacity></Text>)}
+
+            
             <TouchableOpacity  style={styles.backButton}onPress={()=>{
               if(hasUnsavedChanges){
                Alert.alert(  "Unsaved changes",
@@ -173,5 +209,16 @@ const styles=StyleSheet.create({
   backText: {
     color: "#596650",
     fontSize: 15,
-  }
+  },
+  historyButton: {
+  backgroundColor: "#8A9A78",
+  padding: 12,
+  borderRadius: 10,
+  alignItems: "center",
+  marginVertical: 12,
+},
+historyText: {
+  color: "#FFFFFF",
+  fontWeight: "600",
+},
 })

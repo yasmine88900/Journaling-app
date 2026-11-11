@@ -5,6 +5,6 @@ export type JournalEntry = {
     content:string;
     createdAt:string;
     updatedAt:string;
-    prompt:string
+    prompt:string;
 
 };
