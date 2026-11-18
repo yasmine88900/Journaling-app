@@ -57,9 +57,17 @@ if (selectedEntry && selectedIndex !== -1) {
   setEntry(selectedEntry.content);
   setEditingIndex(selectedIndex);
   setSelectedEmoji(selectedEntry.emoji ?? "");
-  setSelectedFont(selectedEntry.font ?? "");
+  setSelectedFont(selectedEntry.font ?? "normal");
   setSelectedTheme(selectedEntry.theme ?? "");
   
+}
+else {
+  setEntry("");
+  setEditingIndex(null);
+  setHasUnsavedChanges(false)
+  setSelectedEmoji("");
+  setSelectedFont("normal");
+  setSelectedTheme("");
 }
 }
   catch(error){
@@ -87,7 +95,13 @@ if (selectedEntry && selectedIndex !== -1) {
           <View style={{ flexDirection: "row", gap: 10 }}>
             {JournalEmojis.map((emoji)=>(
               <TouchableOpacity key={emoji}
-              onPress={()=>setSelectedEmoji(emoji)}>
+              onPress={()=>setSelectedEmoji(emoji)}
+              style={{
+  padding: 5,
+  borderWidth: selectedEmoji === emoji ? 2 : 0,
+  borderColor: "#354735",
+  borderRadius: 8,
+}}>
                  <Text>{emoji}</Text>
                  
               </TouchableOpacity>
@@ -99,6 +113,8 @@ if (selectedEntry && selectedIndex !== -1) {
              key={theme}
             onPress={() => setSelectedTheme(theme)}
            style={{
+            borderWidth: selectedTheme === theme ? 3 : 0,
+            borderColor: "#354735",
         backgroundColor: color,
         width: 35,
         height: 35,
@@ -111,7 +127,8 @@ if (selectedEntry && selectedIndex !== -1) {
             {selectedEmoji}
           </Text>)}
            
-           <TextInput style={[styles.input, { fontFamily: selectedFont ,backgroundColor: JournalThemes[selectedTheme as keyof typeof JournalThemes]}]}
+           <TextInput style={[styles.input, { fontFamily: selectedFont ,
+           backgroundColor: JournalThemes[selectedTheme as keyof typeof JournalThemes]??"#FFF"}]}
            
            placeholder="write you thoughts here.."  multiline value={entry} onChangeText={(text)=>{setEntry(text) ;
             setHasUnsavedChanges(true)}
@@ -121,6 +138,12 @@ if (selectedEntry && selectedIndex !== -1) {
                <TouchableOpacity
                  key={font}
                 onPress={() => setSelectedFont(font)}
+                style={{
+  padding: 5,
+  borderWidth: selectedFont === font ? 2 : 0,
+  borderColor: "#354735",
+  borderRadius: 8,
+}}
     >
                   <Text>{font}</Text>
                   </TouchableOpacity>

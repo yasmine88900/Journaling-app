@@ -1,4 +1,5 @@
 //List of previous journal entries
+import { JournalThemes } from "@/constants/journalCustomization";
 import { loadEntries } from "@/services/journalServices";
 import { JournalEntry } from "@/types/journal";
 import { useRouter } from "expo-router";
@@ -52,7 +53,8 @@ export default  function JournalHistory(){
                                   entryId: item.id,}})
 
                                              }}
-style={styles.entryCard}>
+style={[styles.entryCard,{backgroundColor:JournalThemes[item.theme as keyof typeof JournalThemes]}]}>
+                    {item.emoji && <Text>{item.emoji}</Text>}
                     <Text style={styles.entryTitle}>{item.prompt}</Text>
                     <Text>{new Date(item.createdAt).toDateString()}</Text>
                     <Text>{preview}</Text>
