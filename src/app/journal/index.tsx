@@ -1,10 +1,12 @@
 import prompts from "@/data/prompts";
 import { loadEntries, saveEntries } from "@/services/journalServices";
 import { JournalEntry } from "@/types/journal";
+import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Alert,
+  Image,
   StyleSheet,
   Text,
   TextInput,
@@ -15,6 +17,24 @@ import {
 import { JournalEmojis, JournalFonts, JournalThemes } from "@/constants/journalCustomization";
 export default function JournalScreen(){
     const [entry, setEntry] = useState("");
+     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+     const PickImage=async()=>{
+      const permissionResult=await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (permissionResult.granted==false){
+         Alert.alert("Permission required", "Please allow access to your photos.");
+    return;
+      }
+      const result= await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ["images"],
+       allowsEditing: true,
+        aspect: [1, 1],
+          quality: 0.8,
+      })
+      if(!result.canceled){
+        setSelectedImage(result.assets[0].uri);
+      }
+     }
 
     const [selectedTheme, setSelectedTheme] = useState("");
     const [selectedFont, setSelectedFont] = useState("normal");
@@ -149,7 +169,16 @@ else {
                   </TouchableOpacity>
   ))}
 </View>
-           
+//////image
+  <TouchableOpacity onPress={PickImage}>
+  <Text>Choose Photo</Text>
+</TouchableOpacity>
+{selectedImage &&(
+  <Image source={{ uri: selectedImage }} style={{ width: 200, height: 200, borderRadius: 12 }}/>
+)}
+
+
+
 
            <TouchableOpacity style={styles.saveButton} disabled={isSaving} onPress={async()=> {
   if (isSaving) return;
