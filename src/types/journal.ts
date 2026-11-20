@@ -6,5 +6,9 @@ export type JournalEntry = {
     createdAt:string;
     updatedAt:string;
     prompt:string;
+    theme?: string; //?:choice
+    font?: string;
+    emoji?: string;
+    image?: string | null;
 
 };

@@ -79,6 +79,7 @@ if (selectedEntry && selectedIndex !== -1) {
   setSelectedEmoji(selectedEntry.emoji ?? "");
   setSelectedFont(selectedEntry.font ?? "normal");
   setSelectedTheme(selectedEntry.theme ?? "");
+  setSelectedImage(selectedEntry.image ?? null);
   
 }
 else {
@@ -88,6 +89,7 @@ else {
   setSelectedEmoji("");
   setSelectedFont("normal");
   setSelectedTheme("");
+  setSelectedImage(null);
 }
 }
   catch(error){
@@ -176,6 +178,11 @@ else {
 {selectedImage &&(
   <Image source={{ uri: selectedImage }} style={{ width: 200, height: 200, borderRadius: 12 }}/>
 )}
+{selectedImage &&(
+  <TouchableOpacity onPress={() =>setSelectedImage(null)}>
+    <Text>Remove Photo</Text>
+  </TouchableOpacity>
+)}
 
 
 
@@ -197,6 +204,7 @@ else {
         emoji: selectedEmoji,
         font:selectedFont,
         theme:selectedTheme,
+        image: selectedImage,
              }:item)
              
   } 
@@ -208,6 +216,7 @@ else {
           prompt: dailyPrompt,
          createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        image: selectedImage,
         emoji: selectedEmoji,
         font:selectedFont,
         theme:selectedTheme,

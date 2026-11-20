@@ -5,8 +5,9 @@ import { JournalEntry } from "@/types/journal";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    FlatList,
-    StyleSheet, Text, TouchableOpacity, View
+  FlatList,
+  Image,
+  StyleSheet, Text, TouchableOpacity, View
 } from "react-native";
 export default  function JournalHistory(){
     const router=useRouter();
@@ -53,11 +54,20 @@ export default  function JournalHistory(){
                                   entryId: item.id,}})
 
                                              }}
-style={[styles.entryCard,{backgroundColor:JournalThemes[item.theme as keyof typeof JournalThemes]}]}>
+style={[styles.entryCard
+,{backgroundColor:JournalThemes[item.theme as keyof typeof JournalThemes]
+    ??
+ "#FFFF",}]}>
                     {item.emoji && <Text>{item.emoji}</Text>}
                     <Text style={styles.entryTitle}>{item.prompt}</Text>
                     <Text>{new Date(item.createdAt).toDateString()}</Text>
-                    <Text>{preview}</Text>
+                    {item.image && (
+                      <Image source={{uri:item.image}}
+                      style={{width:80, height:80,borderRadius:10}}>
+
+                      </Image>
+                    )}
+                    <Text style={{fontFamily:item.font ?? "normal"}}>{preview}</Text>
                   </TouchableOpacity>
                 );
               }}
