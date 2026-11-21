@@ -1,10 +1,11 @@
 //List of previous journal entries
 import { JournalThemes } from "@/constants/journalCustomization";
-import { loadEntries } from "@/services/journalServices";
+import { loadEntries, saveEntries } from "@/services/journalServices";
 import { JournalEntry } from "@/types/journal";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  Alert,
   FlatList,
   Image,
   StyleSheet, Text, TouchableOpacity, View
@@ -13,6 +14,30 @@ export default  function JournalHistory(){
     const router=useRouter();
     const [entries, setEntries] = useState<JournalEntry[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const deleteEntry=async(id:string)=>{
+      Alert.alert('Delete Entry',
+        "Are you sure you want to delete this entry?",
+        [{
+          text:"cancel",
+          style:"cancel"
+        },
+      {
+          text:"delete",
+          style:"destructive",
+          onPress:async()=>{
+            const updatedEntrirs=entries.filter((item) => item.id !== id);
+            try{
+              await saveEntries(updatedEntrirs);
+              setEntries(updatedEntrirs);
+            }
+            catch(error){
+             Alert.alert("Error", "Could not delete this entry.");
+
+            }
+          }
+        }]
+      )
+    };
    useEffect(()=>{
     async function getEntries() {
 
@@ -48,32 +73,48 @@ export default  function JournalHistory(){
                     : item.content;
 
                 return (
-                  <TouchableOpacity  onPress={() => {
-                    router.push({ pathname: "/journal",
-                                  params: {
-                                  entryId: item.id,}})
-
-                                             }}
-style={[styles.entryCard
-,{backgroundColor:JournalThemes[item.theme as keyof typeof JournalThemes]
-    ??
- "#FFFF",}]}>
-                    {item.emoji && <Text>{item.emoji}</Text>}
-                    <Text style={styles.entryTitle}>{item.prompt}</Text>
-                    <Text>{new Date(item.createdAt).toDateString()}</Text>
-                    {item.image && (
-                      <Image source={{uri:item.image}}
-                      style={{width:80, height:80,borderRadius:10}}>
-
-                      </Image>
-                    )}
-                    <Text style={{fontFamily:item.font ?? "normal"}}>{preview}</Text>
-                  </TouchableOpacity>
+                  <View>
+                    <TouchableOpacity
+                      onPress={() => {
+                        router.push({
+                          pathname: "/journal",
+                          params: { entryId: item.id },
+                        });
+                      }}
+                      style={[
+                        styles.entryCard,
+                        {
+                          backgroundColor:
+                            JournalThemes[item.theme as keyof typeof JournalThemes] ??
+                            "#FFFF",
+                        },
+                      ]}>
+                      {item.emoji && <Text>{item.emoji}</Text>}
+                      <Text style={styles.entryTitle}>{item.prompt}</Text>
+                      <Text>{new Date(item.createdAt).toDateString()}</Text>
+                      {item.image && (
+                        <Image
+                          source={{ uri: item.image }}
+                          style={{ width: 80, height: 80, borderRadius: 10 }}
+                        />
+                      )}
+                      <Text style={{ fontFamily: item.font ?? "normal" }}>
+                        {preview}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => deleteEntry(item.id)}>
+                      <Text>Delete</Text>
+                    </TouchableOpacity>
+                  </View>
                 );
               }}
-            />)}
+            />
+            )}
+      
+    
         </View>
     )
+   
 }
 const styles=StyleSheet.create({
      container: {
