@@ -40,7 +40,7 @@ export default function JournalScreen(){
     const [selectedFont, setSelectedFont] = useState("normal");
     const [selectedEmoji, setSelectedEmoji] = useState("");
      const [entries, setEntries] =  useState<JournalEntry[]>([]);
-
+     const [streak,setStreak]=useState(0);
      const [isSaving, setIsSaving] = useState(false);
      const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
      const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -113,6 +113,7 @@ else {
            <Text style={styles.date}>{new Date().toDateString()}</Text>
            <Text style={styles.greeting}>Hello!</Text>
            <Text >{dailyPrompt}</Text>
+           <Text style={styles.streakText}>🔥 {streak} Day Streak</Text>
 
           <View style={{ flexDirection: "row", gap: 10 }}>
             {JournalEmojis.map((emoji)=>(
@@ -236,7 +237,7 @@ else {
                  finally {
   setIsSaving(false);
            }
-            setHasUnsavedChanges(false);
+           
            
            
            } }}}>
@@ -248,7 +249,19 @@ else {
             <TouchableOpacity  style={styles.backButton}onPress={()=>{
               if(hasUnsavedChanges){
                Alert.alert(  "Unsaved changes",
-                              "Do you want to leave without saving?",)//add choices to save or cancel later
+                              "Do you want to leave without saving?",
+                            [
+                              {
+                                text:"Cancel",
+                                style:"cancel"
+                              },
+                              {
+                                text:"Leave",
+                                style:"destructive",
+                                onPress:()=>router.back(),
+
+                              }
+                            ])//add choices to save or cancel later
 
               }else{router.back()}}}>
              <Text style={styles.backText}> Back to Dashboard</Text>
@@ -336,5 +349,11 @@ const styles=StyleSheet.create({
 historyText: {
   color: "#FFFFFF",
   fontWeight: "600",
+},
+streakText: {
+  fontSize: 16,
+  fontWeight: "bold",
+  color: "#354735",
+  marginBottom: 15,
 },
 })
