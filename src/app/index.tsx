@@ -1,6 +1,21 @@
 //Main journal screen and daily prompt
-import { Redirect } from "expo-router";
+import { StyleSheet, Text, View } from "react-native";
 
 export default function HomeScreen() {
-  return <Redirect href="/journal" />;
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Home</Text>
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 24,
+  },
+});

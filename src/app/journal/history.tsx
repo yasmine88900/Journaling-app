@@ -60,6 +60,9 @@ export default  function JournalHistory(){
     return(
         <View style={styles.container}>
             <Text style={styles.title}>Journal History</Text>
+            <TouchableOpacity onPress={() => router.back()}>
+  <Text>Back to Journal</Text>
+</TouchableOpacity>
             {isLoading ? (<Text>Loading...</Text> ): 
             entries.length===0?
             (<Text>Your journal is waiting for your first entry.</Text>):

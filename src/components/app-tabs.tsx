@@ -27,6 +27,9 @@ export default function AppTabs() {
           renderingMode="template"
         />
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="journal">
+  <NativeTabs.Trigger.Label>Journal</NativeTabs.Trigger.Label>
+</NativeTabs.Trigger>
     </NativeTabs>
   );
 }

@@ -107,9 +107,15 @@ else {
         <View style={styles.container}>
        
             <Text style={styles.title}>My Journal 🌿</Text>
-            <TouchableOpacity style={styles.historyButton} onPress={() => router.push("/journal/history")}>
-               <Text style={styles.historyText}>View Journal History</Text>
-              </TouchableOpacity>
+           <TouchableOpacity
+  style={styles.historyButton}
+  onPress={() => {
+    console.log("History button pressed");
+    router.push("/journal/history");
+  }}
+>
+  <Text style={styles.historyText}>View Journal History</Text>
+</TouchableOpacity>
            <Text style={styles.date}>{new Date().toDateString()}</Text>
            <Text style={styles.greeting}>Hello!</Text>
            <Text >{dailyPrompt}</Text>
@@ -172,7 +178,7 @@ else {
                   </TouchableOpacity>
   ))}
 </View>
-//////image
+{/* image */}
   <TouchableOpacity onPress={PickImage}>
   <Text>Choose Photo</Text>
 </TouchableOpacity>
@@ -258,12 +264,12 @@ else {
                               {
                                 text:"Leave",
                                 style:"destructive",
-                                onPress:()=>router.back(),
+                                onPress:()=>router.replace("/"),
 
                               }
                             ])//add choices to save or cancel later
 
-              }else{router.back()}}}>
+              }else{router.replace("/")}}}>
              <Text style={styles.backText}> Back to Dashboard</Text>
             </TouchableOpacity>
         </View>
